@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<style>
+    a i {
+        font-size: 20px;  /* Thay đổi kích thước của icon */
+        color: #007bff;   /* Màu sắc của icon */
+        text-decoration: none; /* Loại bỏ gạch chân */
+        padding: 5px;
+    }
+
+    a i:hover {
+        color: #dc3545; /* Màu khi hover */
+    }
+    footer {
+        background-color: #f8f9fa;  /* Màu nền sáng */
+        color: #333;  /* Màu chữ tối */
+        font-size: 16px;  /* Kích thước chữ */
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+    }
+    /* Flexbox để tiêu đề và thanh tìm kiếm cùng nằm ngang */
+    .d-flex-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .search-container {
+        flex-grow: 1;
+        max-width: 400px; /* Giới hạn chiều rộng thanh tìm kiếm */
+    }
+
+    .input-group {
+        width: 100%;
+    }
+</style>
+<body>
+    
+    <!-- Thanh Menu -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" style="height: 40px;">
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('home') }}">Quản lý môn học</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('add_course') }}">Thêm môn học</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <div class="d-flex-container">
+            <h2>Danh sách môn học</h2>
+            <form method="GET" action="{{ url_for('home') }}" class="form-inline justify-content-center my-4">
+                <div class="input-group mr-2">
+                    <input type="text" class="form-control" name="search_query" placeholder="Tìm kiếm môn học..." value="{{ request.args.get('search_query', '') }}">
+                </div>
+                <div class="input-group mr-2">
+                    <select class="form-control" name="status_query">
+                        <option value="">Chọn trạng thái</option>
+                        <option value="chua_hoc" {% if request.args.get('status_query') == 'chua_hoc' %}selected{% endif %}>Chưa học</option>
+                        <option value="dang_hoc" {% if request.args.get('status_query') == 'dang_hoc' %}selected{% endif %}>Đang học</option>
+                        <option value="da_hoc" {% if request.args.get('status_query') == 'da_hoc' %}selected{% endif %}>Đã học</option>
+                        <option value="da_rot" {% if request.args.get('status_query') == 'da_rot' %}selected{% endif %}>Đã rớt</option>
+                    </select>
+                </div>
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-success">Tìm kiếm</button>
+                </div>
+            </form>            
+        </div>
+        
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Mã Môn học</th>
+                    <th>Tên Môn học</th>
+                    <th>Điểm GPA</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                    
+                    <td>
+                        {% if row[4] == "chua_hoc" %}
+                            Chưa học
+                        {% elif row[4] == "dang_hoc" %}
+                            Đang học
+                        {% elif row[4] == "da_hoc" %}
+                            Đã học
+                        {% elif row[4] == "da_rot" %}
+                            Đã rớt
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('edit_course', course_id=row[0]) }}">
+                            <i class="fas fa-edit"></i> <!-- Icon chỉnh sửa -->
+                        </a> |
+                        <a href="{{ url_for('delete_course', course_id=row[0]) }}">
+                            <i class="fas fa-trash-alt"></i> <!-- Icon xóa -->
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Footer -->
+    <footer>
+        <p>Design by Kim Ngọc</p>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
